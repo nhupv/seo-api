@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
-import { SessionService } from './session/session.service';
 import { TelegramBotService } from './telegram/telegram.service';
 @Injectable()
 export class AppService {
-  constructor(
-    private sessionService: SessionService,
-    private telegramService: TelegramBotService,
-  ) {}
+  constructor(private telegramService: TelegramBotService) {}
   async requestFido2RedirectUri(
     sessionID: string,
   ): Promise<{ redirect_uri: string }> {
@@ -35,7 +31,7 @@ export class AppService {
     const state = uuid();
     //save sessionID as a key, value is state to db
     try {
-      await this.sessionService.create({ session_id: sessionID, state });
+      // await this.sessionService.create({ session_id: sessionID, state });
       return state;
     } catch (e) {
       console.log(e);

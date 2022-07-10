@@ -25,7 +25,10 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
-  // app.useGlobalFilters(new HttpExceptionFilter());
+  if (process.env.NODE_ENV === 'production') {
+    app.useGlobalFilters(new HttpExceptionFilter());
+  }
+
   await app.listen(4000);
 }
 bootstrap();

@@ -7,13 +7,15 @@ import {
   Post,
   Delete,
   Body,
+  HttpStatus,
+  Response,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { Public } from './decorator/public.decorator';
 import { Fido2AuthGuard } from './guard/fido2-auth.guard';
-import { FidoSessionDto } from './dto/fido-session.dto';
+// import { FidoSessionDto } from './dto/fido-session.dto';
 
 @Controller()
 export class AppController {
@@ -30,16 +32,16 @@ export class AppController {
   }
 
   @Get('profile')
-  getProfile(@Request() req) {
-    return { data: req.user };
+  getProfile(@Request() req, @Response() res) {
+    return res.status(HttpStatus.OK).json({ data: req.user });
   }
 
-  @Public()
-  @Get('fido2/uri')
-  async getUrlRedirect(@Query() sessionDto: FidoSessionDto) {
-    const sessionID = sessionDto.session_id;
-    return this.appService.requestFido2RedirectUri(sessionID);
-  }
+  // @Public()
+  // @Get('fido2/uri')
+  // async getUrlRedirect(@Query() sessionDto: FidoSessionDto) {
+  //   const sessionID = sessionDto.session_id;
+  //   return this.appService.requestFido2RedirectUri(sessionID);
+  // }
 
   @Public()
   @Get('auth/fido2')

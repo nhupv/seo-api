@@ -9,14 +9,14 @@ import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { TelegramBotModule } from 'src/telegram/telegram.module';
 import { Fido2Strategy } from './fido2.strategy';
-import { SessionModule } from '../session/session.module';
+// import { SessionModule } from '../session/session.module';
 @Module({
   imports: [
     UsersModule,
     TelegramBotModule,
     HttpModule,
     PassportModule,
-    SessionModule,
+    // SessionModule,
     ConfigModule.forRoot(),
     JwtModule.register({
       secret: process.env.SECRET,

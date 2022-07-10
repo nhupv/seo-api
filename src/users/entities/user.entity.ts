@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { classToPlain, Exclude, Expose, Transform } from 'class-transformer';
-import { IsEmail, IsOptional } from 'class-validator';
 import { Document, ObjectId } from 'mongoose';
 import { Role } from 'src/roles/role.enum';
 

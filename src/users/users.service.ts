@@ -4,22 +4,38 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model, ObjectId } from 'mongoose';
+import { PaginationResultInterface } from '../pagination/interface/pagination-result.interface';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const createUser = new this.userModel(createUserDto);
     return createUser.save();
   }
 
-  async findAll(id: ObjectId): Promise<User[]> {
-    return this.userModel.find({ _id: { $ne: id } }).exec();
+  async findAll(
+    id: ObjectId,
+    skip: number,
+    limit: number,
+    sortBy: string,
+    sortType: string,
+  ): Promise<PaginationResultInterface<User>> {
+    const total = await this.userModel
+      .countDocuments({ _id: { $ne: id } })
+      .exec();
+    const data = await this.userModel
+      .find({ _id: { $ne: id } })
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortBy]: [sortType] })
+      .exec();
+    return { data, total };
   }
 
-  async findOne(id: ObjectId): Promise<User> {
-    return await this.userModel.findOne({ _id: id });
+  findOne(id: ObjectId): Promise<User> {
+    return this.userModel.findOne({ _id: id }).exec();
   }
 
   update(id: ObjectId, updateUserDto: UpdateUserDto) {
@@ -31,12 +47,13 @@ export class UsersService {
   remove(id: ObjectId) {
     return this.userModel.findOneAndDelete({ _id: id });
   }
-  async findByUsername(username: string): Promise<User | undefined> {
-    return await this.userModel
+  findByUsername(username: string): Promise<User | undefined> {
+    return this.userModel
       .findOne({ email: username })
-      .select('+password');
+      .select('+password')
+      .exec();
   }
-  async findByFidoName(fidoUser: string): Promise<User | undefined> {
-    return await this.userModel.findOne({ fido_user: fidoUser });
+  findByFidoName(fidoUser: string): Promise<User | undefined> {
+    return this.userModel.findOne({ fido_user: fidoUser }).exec();
   }
 }

@@ -2,14 +2,13 @@ import { Strategy, StrategyOptionsWithRequest } from 'passport-oauth2';
 import { PassportStrategy } from '@nestjs/passport';
 import { HttpService, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { SessionService } from '../session/session.service';
+// import { SessionService } from '../session/session.service';
 
 @Injectable()
 export class Fido2Strategy extends PassportStrategy(Strategy, 'fido2') {
   constructor(
     private readonly userService: UsersService,
-    private readonly http: HttpService,
-    private readonly sessionService: SessionService,
+    private readonly http: HttpService, // private readonly sessionService: SessionService,
   ) {
     super({
       authorizationURL: `${process.env.FIDO_AUTHORIZATION_URL}/authorize`,
@@ -34,10 +33,10 @@ export class Fido2Strategy extends PassportStrategy(Strategy, 'fido2') {
     console.log(profile);
     console.log(verified);
     const { state, session } = req.query;
-    const sessionInDb = await this.sessionService.findOneBySession(session);
-    if (sessionInDb && sessionInDb.state !== state) {
-      throw new UnauthorizedException();
-    }
+    // const sessionInDb = await this.sessionService.findOneBySession(session);
+    // if (sessionInDb && sessionInDb.state !== state) {
+    //   throw new UnauthorizedException();
+    // }
     const { data } = await this.http
       .post(
         `${process.env.FIDO_AUTHORIZATION_URL}/profile`,

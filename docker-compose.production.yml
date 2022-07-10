@@ -1,18 +1,21 @@
 version: '3'
 services:
-  nest-api:
+  nest-api-pro:
     container_name: nest-api-pro
-    image: nest-api-pro:1.0.0
-    build:
-      context: .
-      dockerfile: ./Dockerfile-pro
+    image: nest-api-pro:latest
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile-production
     command: npm run start:prod
     ports:
       - '${APP_PORT}:4000'
     networks:
       - nestapi
+    depends_on:
+      - mongo
+      - redis
     volumes:
-      - .:/usr/src/app
+#      - .:/usr/src/app
       - /usr/src/app/node_modules
     restart: unless-stopped
   mongo:

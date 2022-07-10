@@ -1,3 +1,3 @@
 export const jwtConstants = {
-  expire: '1d',
+  expire: process.env.TOKEN_TIME_EXPIRED,
 };

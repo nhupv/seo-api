@@ -4,21 +4,26 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
   Post,
+  Query,
   Request,
   Scope,
+  UseInterceptors,
 } from '@nestjs/common';
-import {UsersService} from './users.service';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
-import {ObjectId} from 'mongoose';
-import {User} from './entities/user.entity';
-import {Role} from 'src/roles/role.enum';
-import {Roles} from 'src/decorator/roles.decorator';
-import {TelegramBotService} from 'src/telegram/telegram.service';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ObjectId } from 'mongoose';
+import { User } from './entities/user.entity';
+import { Role } from 'src/roles/role.enum';
+import { Roles } from 'src/decorator/roles.decorator';
+import { TelegramBotService } from 'src/telegram/telegram.service';
+import { PaginationParams } from '../pagination/dto/papgination-params.dto';
+import { PaginationInterceptor } from '../pagination/interceptor/pagination.interceptor';
 
 @Roles(Role.Admin, Role.SuperUser)
 @Controller({
@@ -37,12 +42,26 @@ export class UsersController {
     //   `Create new user with email: ${user.email}`,
     //   req.user,
     // );
-    return await this.usersService.create(createUserDto);
+    try {
+      return await this.usersService.create(createUserDto);
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.usersService.findAll(req.user.id);
+  @UseInterceptors(PaginationInterceptor)
+  findAll(
+    @Request() req,
+    @Query() { perPage, sortBy, sortType }: PaginationParams,
+  ) {
+    return this.usersService.findAll(
+      req.user.id,
+      req.query.skip,
+      perPage,
+      sortBy,
+      sortType,
+    );
   }
 
   @Get(':id')
@@ -84,7 +103,7 @@ export class UsersController {
       throw new NotFoundException(`User with id ${id} was not found.`);
     }
     if (user.id === req.user.id) {
-      throw new BadRequestException(`Can not delete user is logged i.`);
+      throw new BadRequestException(`Can not delete user is logged in.`);
     }
     // this.telegramService.sendCotipActivities(
     //   `Delete user with email: ${user.email}`,
